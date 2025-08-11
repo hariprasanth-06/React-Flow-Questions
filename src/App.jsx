@@ -11,6 +11,9 @@ import axios from 'axios';
 export default function App() {
   const [count, setCount] = useState(0);
   const [showFlow, setShowFlow] = useState(false);
+  const [editShowFlow, setEditShowFlow] = useState(false);
+
+  const [editRow, setEditRow] = useState(null);
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -30,6 +33,10 @@ export default function App() {
 
   if (showFlow) {
     return <FlowPage />;
+  }
+
+  if(editShowFlow){
+    return <EditFlowPage editRow={editRow} />;
   }
 
   return (
@@ -60,7 +67,7 @@ export default function App() {
                 <tr key={row.id || idx}>
                   <td>{row.id}</td>
                   <td>{row.buildings || row.question || row.label}</td>
-                  <td><button onClick={() => setShowFlow(true)}>Edit</button></td>
+                  <td><button onClick={() => editShowFlow(true)}>Edit</button></td>
                   {/* Add more cells if needed */}
                 </tr>
               ))}
