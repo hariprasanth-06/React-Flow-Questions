@@ -5,13 +5,14 @@ import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
 import FlowPage from './FlowPage';
+import EditFlowPage from './EditFlowPage';
 import axios from 'axios';
 
 
 export default function App() {
   const [count, setCount] = useState(0);
   const [showFlow, setShowFlow] = useState(false);
-  const [editShowFlow, setEditShowFlow] = useState(false);
+  const [editShowFlow, setEditShowFlow] = useState(0);
 
   const [editRow, setEditRow] = useState(null);
   const [tableData, setTableData] = useState([]);
@@ -35,8 +36,9 @@ export default function App() {
     return <FlowPage />;
   }
 
-  if(editShowFlow){
-    return <EditFlowPage editRow={editRow} />;
+  if(editShowFlow > 0){
+    console.log("Edit ID:", editShowFlow);
+    return <EditFlowPage editId={editShowFlow} />;
   }
 
   return (
@@ -67,7 +69,7 @@ export default function App() {
                 <tr key={row.id || idx}>
                   <td>{row.id}</td>
                   <td>{row.buildings || row.question || row.label}</td>
-                  <td><button onClick={() => editShowFlow(true)}>Edit</button></td>
+                  <td><button onClick={() => setEditShowFlow(row.id)}>Edit</button></td>
                   {/* Add more cells if needed */}
                 </tr>
               ))}

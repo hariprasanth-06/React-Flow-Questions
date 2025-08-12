@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import QuestionNode from './QuestionNode';
@@ -11,17 +11,31 @@ const initialNodes = [
 ];
 const initialEdges = [{ id: 'n1-n2', source: 'n1', target: 'n2' }];
 
-export default function FlowPage({ editRow }) {
-  const [nodes, setNodes] = useState(
-    editRow
-      ? [{ id: 'edit', type: 'question', position: { x: 0, y: 0 }, data: { label: editRow.buildings || editRow.question || editRow.label || '' } }]
-      : initialNodes
-  );
+
+export default function FlowPage({ editId }) {
+  const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
   const [nodeId, setNodeId] = useState(3);
   const [submitting, setSubmitting] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [editModal, setEditModal] = useState({ open: false, id: null, value: '' });
+
+  useEffect(() => {
+    if (editId) {
+      setLoading(true);
+      axios.get(`http://127.0.0.1:8000/api/survey/edit_survey/${editId}`)
+        .then(res => {
+          console.log(res);
+          // Expecting { nodes: [...], edges: [...] } from API
+          setNodes(res.data.nodes || initialNodes);
+          setEdges(res.data.edges || initialEdges);
+          setError(null);
+        })
+        .catch(() => setError('Failed to fetch data for editing.'))
+        .finally(() => setLoading(false));
+    }
+  }, [editId]);
 
   const nodeTypes = { question: (props) => (
     <QuestionNode {...props} onDelete={handleNodeDelete} onEdit={handleNodeEdit} />
@@ -97,6 +111,9 @@ export default function FlowPage({ editRow }) {
       setSubmitting(false);
     }
   }
+
+  if (loading) return <div style={{ padding: 40 }}>Loading...</div>;
+  if (error) return <div style={{ padding: 40, color: 'red' }}>{error}</div>;
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
